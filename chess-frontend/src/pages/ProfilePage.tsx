@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { userAPI } from '../api';
 import { useAuthStore } from '../store/authStore';
-import { Edit2, Save, X, Trophy, Target, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Edit2, Save, X, Trophy, Target, TrendingUp } from 'lucide-react';
 
 interface Stats {
   currentElo: number;

@@ -9,7 +9,9 @@ import HistoryPage from './pages/HistoryPage';
 import ProfilePage from './pages/ProfilePage';
 import ReplayPage from './pages/ReplayPage';
 import './styles/global.css';
-
+import PvPMatch from './pages/PvPMatch';
+import ReviewMatchPage from './pages/ReviewMatchPage';
+import TournamentPage from './pages/TournamentPage';
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -41,6 +43,10 @@ export default function App() {
           <ProtectedRoute><GamePage /></ProtectedRoute>
         } />
 
+        <Route path="/tournaments" element={
+          <ProtectedRoute><TournamentPage /></ProtectedRoute>
+        } />
+
         <Route path="/history" element={
           <ProtectedRoute><HistoryPage /></ProtectedRoute>
         } />
@@ -51,6 +57,12 @@ export default function App() {
 
         <Route path="/replay/:id" element={
           <ProtectedRoute><ReplayPage /></ProtectedRoute>
+        } />
+        <Route path="/online" element={
+          <ProtectedRoute><PvPMatch /></ProtectedRoute>
+        } />
+        <Route path="/review" element={
+          <ProtectedRoute><ReviewMatchPage /></ProtectedRoute>
         } />
 
         <Route path="*" element={<Navigate to="/" replace />} />

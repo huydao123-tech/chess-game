@@ -79,3 +79,54 @@ export const gameAPI = {
     api.get(`/games?page=${page}&size=${size}`),
   getGame: (id: number) => api.get(`/games/${id}`),
 };
+
+// Tournament Types
+export type TournamentStatus =
+  | 'DRAFT'
+  | 'UPCOMING'
+  | 'REGISTRATION'
+  | 'FULL'
+  | 'READY'
+  | 'ONGOING'
+  | 'PAUSED'
+  | 'FINISHED'
+  | 'CANCELLED';
+
+export interface CreateTournamentRoomRequestDTO {
+  id?: number;
+  name: string;
+  startTime: string; // ISO format string: YYYY-MM-DDTHH:mm:ss
+  endTime: string;   // ISO format string: YYYY-MM-DDTHH:mm:ss
+  timeControl: number; // in seconds
+}
+
+export interface CreateTournamentRoomResponseDTO {
+  id: number;
+  tournamentName: string;
+  status: TournamentStatus;
+  createdAt: string;
+}
+
+export interface TournamentDTO {
+  id: number;
+  name: string;
+  startTime: string;
+  endTime: string;
+  status: TournamentStatus;
+  timeControl: number;
+}
+
+// Tournament APIs
+export const tournamentAPI = {
+  createTournament: (data: CreateTournamentRoomRequestDTO) =>
+    api.post<CreateTournamentRoomResponseDTO>('/tournament', data),
+  createTournamentRoom: (data: CreateTournamentRoomRequestDTO) =>
+    api.post<CreateTournamentRoomResponseDTO>('/tournament/create', data),
+  finishMatch: (data: CreateTournamentRoomRequestDTO) =>
+    api.post<CreateTournamentRoomResponseDTO>('/tournament/finish', data),
+  getTournaments: () =>
+    api.get<TournamentDTO[]>('/tournament'),
+  getTournament: (id: number) =>
+    api.get<TournamentDTO>(`/tournament/${id}`),
+};
+

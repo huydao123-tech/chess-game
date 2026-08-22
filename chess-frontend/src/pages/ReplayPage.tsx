@@ -29,7 +29,6 @@ export default function ReplayPage() {
   const [fens, setFens] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  const autoPlayRef = useState<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     loadGame();
@@ -166,15 +165,14 @@ export default function ReplayPage() {
 
           <div className="board-container">
             <Chessboard
-              id="replay-board"
-              position={currentFen}
-              boardOrientation={playerColor}
-              boardWidth={Math.min(560, window.innerWidth - 200)}
-              customDarkSquareStyle={{ backgroundColor: '#4a7c59' }}
-              customLightSquareStyle={{ backgroundColor: '#f0d9b5' }}
-              animationDuration={300}
-              isDraggablePiece={() => false}
-              areArrowsAllowed={false}
+              options={{
+                position: currentFen,
+                boardOrientation: playerColor,
+                darkSquareStyle: { backgroundColor: '#4a7c59' },
+                lightSquareStyle: { backgroundColor: '#f0d9b5' },
+                animationDurationInMs: 300,
+                allowDragging: false,
+              }}
             />
           </div>
 

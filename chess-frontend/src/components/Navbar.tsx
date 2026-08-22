@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { authAPI } from '../api';
-import { Swords, LayoutDashboard, Clock, User, LogOut, LogIn } from 'lucide-react';
+import { Swords, LayoutDashboard, Clock, LogOut, LogIn, Trophy } from 'lucide-react';
 
 export default function Navbar() {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
@@ -28,6 +28,14 @@ export default function Navbar() {
             <Link to="/play" className={`navbar-link ${isActive('/play')}`}>
               <Swords size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />
               Play
+            </Link>
+            <Link to="/online" className={`navbar-link ${isActive('/online')}`}>
+              <Swords size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+              Online Match
+            </Link>
+            <Link to="/tournaments" className={`navbar-link ${isActive('/tournaments')}`}>
+              <Trophy size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+              Tournaments
             </Link>
             <Link to="/history" className={`navbar-link ${isActive('/history')}`}>
               <Clock size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />

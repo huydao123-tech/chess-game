@@ -36,9 +36,14 @@ export default function HomePage() {
 
         <div className="hero-actions">
           {isAuthenticated ? (
-            <Link to="/play" className="btn btn-primary btn-lg">
-              ♟ Chơi ngay
-            </Link>
+            <>
+              <Link to="/play" className="btn btn-primary btn-lg">
+                ♟ Chơi ngay
+              </Link>
+              <Link to="/tournaments" className="btn btn-ghost btn-lg">
+                🏆 Giải đấu
+              </Link>
+            </>
           ) : (
             <>
               <Link to="/register" className="btn btn-primary btn-lg">

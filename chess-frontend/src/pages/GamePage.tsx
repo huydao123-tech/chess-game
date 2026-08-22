@@ -3,7 +3,7 @@ import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import { useAuthStore } from '../store/authStore';
 import { gameAPI } from '../api';
-import { RotateCcw, Flag, Handshake, Play, Pause } from 'lucide-react';
+import { RotateCcw, Flag, Play } from 'lucide-react';
 
 type GameResult = 'WIN' | 'LOSS' | 'DRAW' | null;
 type PlayerColor = 'WHITE' | 'BLACK' | 'RANDOM';
@@ -16,10 +16,6 @@ const TIME_OPTIONS = [
   { label: '15 min', seconds: 900 },
   { label: '30 min', seconds: 1800 },
 ];
-
-const AI_LEVEL_NAMES: Record<number, string> = {
-  1: 'Beginner', 5: 'Casual', 10: 'Club', 15: 'Advanced', 20: 'Grandmaster'
-};
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -53,7 +49,6 @@ export default function GamePage() {
   const [isThinking, setIsThinking] = useState(false);
   const [gameResult, setGameResult] = useState<GameResult>(null);
   const [statusMsg, setStatusMsg] = useState('');
-  const [startFen] = useState(new Chess().fen());
 
   // Timer
   const [whiteTime, setWhiteTime] = useState(300);
@@ -128,7 +123,6 @@ export default function GamePage() {
     setIsThinking(true);
 
     const worker = stockfishRef.current;
-    const depth = Math.min(aiLevel, 20);
     const thinkTime = aiLevel <= 5 ? 300 : aiLevel <= 10 ? 800 : aiLevel <= 15 ? 1500 : 2500;
 
     worker.onmessage = (e: MessageEvent) => {
@@ -180,7 +174,7 @@ export default function GamePage() {
     }
   }, [playerColor]);
 
-  const endGame = useCallback(async (result: GameResult, reason?: string) => {
+  const endGame = useCallback(async (result: GameResult, _reason?: string) => {
     setGameResult(result);
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -198,14 +192,14 @@ export default function GamePage() {
           timeControl: timeChoice,
         });
         const savedGame = res.data;
-        if (savedGame.eloAfter) {
+        if (savedGame?.eloAfter) {
           updateUser({ eloRating: savedGame.eloAfter });
         }
       } catch (err) {
         console.error('Failed to save game:', err);
       }
     }
-  }, [user, playerColor, aiLevel, timeChoice]);
+  }, [user, playerColor, aiLevel, timeChoice, updateUser]);
 
   const startGame = () => {
     const newGame = new Chess();
@@ -222,7 +216,7 @@ export default function GamePage() {
     setWhiteTime(timeChoice);
     setBlackTime(timeChoice);
     setGameStarted(true);
-    setIsThinking(false); 
+    setIsThinking(false);
     startTimeRef.current = Date.now();
 
     // Set stockfish skill
@@ -237,7 +231,7 @@ export default function GamePage() {
     }
   };
 
-  const onDrop = (sourceSquare: string, targetSquare: string, piece: string) => {
+  const onDrop = (sourceSquare: string, targetSquare: string, _piece?: string) => {
     if (!gameStarted || gameResult || isThinking) return false;
     if (game.turn() !== playerColor[0]) return false;
 
@@ -302,6 +296,17 @@ export default function GamePage() {
   const isWhiteActive = gameStarted && !gameResult && game.turn() === 'w';
   const isBlackActive = gameStarted && !gameResult && game.turn() === 'b';
 
+  const handleUndo = () => {
+    if (!gameStarted || gameResult || isThinking) return;
+    
+    if(moveHistory.length <2) return;
+    const newHistory = moveHistory.slice(0, -2);
+    const newGame = new Chess();
+    newHistory.forEach(san => newGame.move(san));
+    setGame(newGame);
+    setFen(newGame.fen());
+    setMoveHistory(newHistory);
+  };
   return (
     <div className="game-page">
       <div className="game-layout">
@@ -512,6 +517,11 @@ export default function GamePage() {
                 </div>
               </div>
             </div>
+          )}
+          {gameStarted && (
+            <button className="btn btn-ghost" onClick={handleUndo} disabled={moveHistory.length < 2 || isThinking || !!gameResult}>
+              🔄 Hoàn tác
+            </button>
           )}
         </aside>
       </div>

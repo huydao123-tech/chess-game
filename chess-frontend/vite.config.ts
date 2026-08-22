@@ -14,5 +14,8 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['stockfish'],
   },
+  define: {
+    global: 'window',
+  },
   assetsInclude: ['**/*.wasm'],
 })
