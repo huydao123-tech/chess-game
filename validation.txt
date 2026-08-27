@@ -1,0 +1,18 @@
+🛡️ 3 Cấp độ Validation bắt buộcĐể hệ thống chạy mượt mà, bạn cần tổ chức validation theo 3 tầng sau:
+1. Tầng Cú pháp & Định dạng (Syntactic Validation)Kiểm tra cấu hình cơ bản của dữ liệu ngay khi vừa tiếp nhận request.
+Sự tồn tại: Trường dữ liệu bắt buộc (Required) có bị trống không?
+Kiểm tra kiểu dữ liệu: Dữ liệu gửi lên là String, Number, Boolean, hay Array?
+Độ dài & Khoảng giá trị: Mật khẩu phải từ 8-20 ký tự, tuổi phải lớn hơn 18.
+Định dạng chuẩn (Regex): Kiểm tra cấu trúc Email, Số điện thoại, Ngày tháng.
+
+2. Tầng Logic Hệ thống (Semantic & Business Validation)
+Kiểm tra xem dữ liệu có hợp lý về mặt nghiệp vụ (business logic) hay không.
+Tầng này thường phải truy vấn vào cơ sở dữ liệu (Database).
+Độ duy nhất (Uniqueness): Email hoặc số điện thoại đăng ký đã tồn tại trong hệ thống chưa?
+Sự tồn tại của thực thể: ID sản phẩm trong đơn hàng có thực sự tồn tại không?
+Logic phụ thuộc: Ngày kết thúc sự kiện có lớn hơn ngày bắt đầu không?
+Số dư tài khoản có đủ để rút không?
+
+3. Tầng Bảo mật (Sanitization)
+Làm sạch dữ liệu trước khi xử lý để tránh các lỗi bảo mật.Cắt khoảng trắng: Loại bỏ khoảng trắng thừa ở đầu/cuối chuỗi (trim).
+Tránh XSS: Loại bỏ hoặc mã hóa các thẻ HTML/Script script độc hại mà người dùng cố tình nhập vào.

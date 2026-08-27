@@ -80,7 +80,10 @@ export const gameAPI = {
   getGame: (id: number) => api.get(`/games/${id}`),
 };
 
-// Tournament Types
+// ==========================================
+// TOURNAMENT TYPES
+// ==========================================
+
 export type TournamentStatus =
   | 'DRAFT'
   | 'UPCOMING'
@@ -92,12 +95,18 @@ export type TournamentStatus =
   | 'FINISHED'
   | 'CANCELLED';
 
+export type TournamentFormat = 'SINGLE_ELIMINATION' | 'ROUND_ROBIN' | 'SWISS';
+export type MatchStatus = 'SCHEDULED' | 'READY' | 'PLAYING' | 'FINISHED' | 'BYE' | 'CANCELLED';
+
 export interface CreateTournamentRoomRequestDTO {
   id?: number;
   name: string;
-  startTime: string; // ISO format string: YYYY-MM-DDTHH:mm:ss
-  endTime: string;   // ISO format string: YYYY-MM-DDTHH:mm:ss
-  timeControl: number; // in seconds
+  startTime: string;
+  endTime: string;
+  timeControl: number;
+  maxParticipants?: number;
+  minParticipants?: number;
+  format?: TournamentFormat;
 }
 
 export interface CreateTournamentRoomResponseDTO {
@@ -107,6 +116,7 @@ export interface CreateTournamentRoomResponseDTO {
   createdAt: string;
 }
 
+/** Dùng cho danh sách giải đấu (không có participants) */
 export interface TournamentDTO {
   id: number;
   name: string;
@@ -114,19 +124,86 @@ export interface TournamentDTO {
   endTime: string;
   status: TournamentStatus;
   timeControl: number;
+  maxParticipants?: number;
+  minParticipants?: number;
+  currentParticipantsCount?: number;
+  format?: TournamentFormat;
+  currentRound?: number;
+  createdByUsername?: string;
+  createdAt?: string;
 }
 
-// Tournament APIs
+/** Một kỳ thủ trong giải đấu */
+export interface ParticipantDTO {
+  id: number;
+  userId: number;
+  username: string;
+  avatarUrl?: string;
+  score: number;
+  seed?: number;
+  rank?: number;
+  joinedAt: string;
+}
+
+/** Một trận đấu trong bracket */
+export interface TournamentMatchDTO {
+  id: number;
+  roundNumber: number;
+  matchOrder: number;
+  status: MatchStatus;
+  whitePlayerId?: number;
+  whitePlayerUsername?: string;
+  blackPlayerId?: number;
+  blackPlayerUsername?: string;
+  winnerId?: number;
+  winnerUsername?: string;
+  gameId?: number;
+  nextMatchId?: number;
+  startTime?: string;
+  endTime?: string;
+}
+
+/** Chi tiết giải đấu kèm danh sách kỳ thủ */
+export interface TournamentDetailDTO extends TournamentDTO {
+  participants: ParticipantDTO[];
+}
+
+// ==========================================
+// TOURNAMENT APIs
+// ==========================================
+
 export const tournamentAPI = {
+  // State transitions
   createTournament: (data: CreateTournamentRoomRequestDTO) =>
-    api.post<CreateTournamentRoomResponseDTO>('/tournament', data),
-  createTournamentRoom: (data: CreateTournamentRoomRequestDTO) =>
-    api.post<CreateTournamentRoomResponseDTO>('/tournament/create', data),
-  finishMatch: (data: CreateTournamentRoomRequestDTO) =>
-    api.post<CreateTournamentRoomResponseDTO>('/tournament/finish', data),
+    api.post<TournamentDTO>('/tournament', data),
+  openRegistration: (id: number) =>
+    api.post<TournamentDTO>(`/tournament/${id}/open`),
+  joinTournament: (id: number) =>
+    api.post<TournamentDTO>(`/tournament/${id}/join`),
+  leaveTournament: (id: number) =>
+    api.post<TournamentDTO>(`/tournament/${id}/leave`),
+  readyToStart: (id: number) =>
+    api.post<TournamentDTO>(`/tournament/${id}/ready`),
+  startTournament: (id: number) =>
+    api.post<TournamentDetailDTO>(`/tournament/${id}/start`),
+  cancelTournament: (id: number) =>
+    api.post<TournamentDTO>(`/tournament/${id}/cancel`),
+
+  // Queries
   getTournaments: () =>
     api.get<TournamentDTO[]>('/tournament'),
   getTournament: (id: number) =>
     api.get<TournamentDTO>(`/tournament/${id}`),
-};
+  getTournamentDetail: (id: number) =>
+    api.get<TournamentDetailDTO>(`/tournament/${id}/detail`),
+  getParticipants: (id: number) =>
+    api.get<ParticipantDTO[]>(`/tournament/${id}/participants`),
+  getBracket: (id: number) =>
+    api.get<TournamentMatchDTO[]>(`/tournament/${id}/bracket`),
 
+  // Backward compat
+  openTournament: (data: CreateTournamentRoomRequestDTO) =>
+    api.post<CreateTournamentRoomResponseDTO>('/tournament/open', data),
+  createTournamentRoom: (data: CreateTournamentRoomRequestDTO) =>
+    api.post<CreateTournamentRoomResponseDTO>('/tournament/create', data),
+};
