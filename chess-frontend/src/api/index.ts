@@ -24,7 +24,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = useAuthStore.getState().refreshToken;
       if (refreshToken) {
@@ -78,6 +78,122 @@ export const gameAPI = {
   getGames: (page = 0, size = 10) =>
     api.get(`/games?page=${page}&size=${size}`),
   getGame: (id: number) => api.get(`/games/${id}`),
+};
+
+// ==========================================
+// FRIENDSHIP TYPES
+// ==========================================
+
+export type FriendshipStatus =
+  | 'PENDING'
+  | 'ACCEPTED'
+  | 'REJECTED'
+  | 'CANCELLED'
+  | 'BLOCKED'
+  | 'BLOCKED_BY_USER1'
+  | 'BLOCKED_BY_USER2';
+
+export interface FriendDTO {
+  friendshipId: number;
+  friendId: number;
+  username: string;
+  avatarUrl?: string;
+  eloRating: number;
+  totalGames: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  status: FriendshipStatus;
+  since: string;
+  isOnline?: boolean;
+}
+
+export interface FriendRequestDTO {
+  friendshipId: number;
+  requesterId: number;
+  requesterUsername: string;
+  requesterAvatarUrl?: string;
+  requesterElo: number;
+  receiverId: number;
+  receiverUsername: string;
+  receiverAvatarUrl?: string;
+  receiverElo: number;
+  status: FriendshipStatus;
+  createdAt: string;
+}
+
+export interface FriendshipStatusResponseDTO {
+  targetUserId: number;
+  status: string; // 'NONE' | 'FRIEND' | 'PENDING_SENT' | 'PENDING_RECEIVED' | 'BLOCKED_BY_YOU' | 'BLOCKED_BY_THEM'
+  friendshipId?: number;
+}
+
+export interface SendFriendResponse {
+  id: number;
+  senderId: number;
+  senderUsername: string;
+  receiverId: number;
+  receiverUsername: string;
+  status: FriendshipStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChallengeEvent {
+  type: 'CHALLENGE_RECEIVED' | 'CHALLENGE_ACCEPTED' | 'CHALLENGE_DECLINED' | 'CHALLENGE_CANCELLED' | 'CHALLENGE_FAILED_OFFLINE' | 'CHALLENGE_START';
+  challengeId?: string;
+  challengerId?: number;
+  challengerUsername?: string;
+  challengerAvatarUrl?: string;
+  challengerElo?: number;
+  targetUserId?: number;
+  targetUsername?: string;
+  timeControl?: number;
+  roomId?: string;
+  isHost?: boolean;
+  opponentUsername?: string;
+  message?: string;
+}
+
+// ==========================================
+// FRIENDSHIP & PRESENCE APIs
+// ==========================================
+
+export const presenceAPI = {
+  getOnlineUsers: () => api.get<number[]>('/presence/online'),
+};
+
+export const friendAPI = {
+  sendFriendRequest: (targetUserId: number, note?: string) =>
+    api.post<SendFriendResponse>(`/friend/send/${targetUserId}`, { note }),
+  acceptFriendRequest: (friendshipId: number) =>
+    api.post<SendFriendResponse>(`/friend/accept/${friendshipId}`),
+  acceptFriendRequestByUser: (targetUserId: number) =>
+    api.post<SendFriendResponse>(`/friend/accept/user/${targetUserId}`),
+  rejectFriendRequest: (friendshipId: number) =>
+    api.post<SendFriendResponse>(`/friend/reject/${friendshipId}`),
+  rejectFriendRequestByUser: (targetUserId: number) =>
+    api.post<SendFriendResponse>(`/friend/reject/user/${targetUserId}`),
+  cancelFriendRequest: (friendshipId: number) =>
+    api.post<SendFriendResponse>(`/friend/cancel/${friendshipId}`),
+  cancelFriendRequestByUser: (targetUserId: number) =>
+    api.post<SendFriendResponse>(`/friend/cancel/user/${targetUserId}`),
+  unfriend: (targetUserId: number) =>
+    api.delete(`/friend/unfriend/${targetUserId}`),
+  blockUser: (targetUserId: number) =>
+    api.post(`/friend/block/${targetUserId}`),
+  unblockUser: (targetUserId: number) =>
+    api.post(`/friend/unblock/${targetUserId}`),
+  getFriendsList: () =>
+    api.get<FriendDTO[]>('/friend/list'),
+  getReceivedFriendRequests: () =>
+    api.get<FriendRequestDTO[]>('/friend/requests/received'),
+  getSentFriendRequests: () =>
+    api.get<FriendRequestDTO[]>('/friend/requests/sent'),
+  getBlockedUsers: () =>
+    api.get<FriendDTO[]>('/friend/blocked'),
+  getFriendshipStatus: (targetUserId: number) =>
+    api.get<FriendshipStatusResponseDTO>(`/friend/status/${targetUserId}`),
 };
 
 // ==========================================
@@ -206,4 +322,38 @@ export const tournamentAPI = {
     api.post<CreateTournamentRoomResponseDTO>('/tournament/open', data),
   createTournamentRoom: (data: CreateTournamentRoomRequestDTO) =>
     api.post<CreateTournamentRoomResponseDTO>('/tournament/create', data),
+};
+
+// ==========================================
+// DASHBOARD APIs
+// ==========================================
+
+export interface DashboardSummaryDTO {
+  userRankInfo: {
+    userName?: string;
+    username?: string;
+    email: string;
+    avatarUrl?: string;
+    eloRating: number;
+    rankPosition: number;
+  };
+  overallStats: {
+    totalGames: number;
+    wins: number;
+    losses: number;
+    draws: number;
+    winRate: number;
+    winStreak: number;
+  };
+  recentGameDTO: {
+    last5Games: any[]; // Any for now, represents Game array
+  };
+  topPlayerDTO: {
+    top5EloRatingPlayer: any[]; // Any for now, represents User array
+  };
+}
+
+export const dashboardAPI = {
+  getSummary: (userId: number) =>
+    api.get<DashboardSummaryDTO>(`/dashboard/${userId}/summary`),
 };

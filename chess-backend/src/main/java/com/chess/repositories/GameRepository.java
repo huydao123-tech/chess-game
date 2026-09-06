@@ -20,4 +20,9 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("SELECT g FROM Game g WHERE g.user = :user ORDER BY g.playedAt DESC")
     List<Game> findRecentByUser(User user, Pageable pageable);
+
+    List<Game> findTop5ByOrderByPlayedAtDesc();
+
+    List<Game> findByUserIdOrderByPlayedAtDesc(Long userId);
+    Long countByUser(User user);
 }

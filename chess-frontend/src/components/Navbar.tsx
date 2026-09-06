@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { authAPI } from '../api';
-import { Swords, LayoutDashboard, Clock, LogOut, LogIn, Trophy } from 'lucide-react';
+import { Swords, LayoutDashboard, Clock, LogOut, LogIn, Trophy, Users } from 'lucide-react';
 
 export default function Navbar() {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
@@ -25,6 +25,10 @@ export default function Navbar() {
 
         {isAuthenticated && (
           <div className="navbar-nav">
+            <Link to="/dashboard" className={`navbar-link ${isActive('/dashboard')}`}>
+              <LayoutDashboard size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+              Dashboard
+            </Link>
             <Link to="/play" className={`navbar-link ${isActive('/play')}`}>
               <Swords size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />
               Play
@@ -36,6 +40,10 @@ export default function Navbar() {
             <Link to="/tournaments" className={`navbar-link ${isActive('/tournaments')}`}>
               <Trophy size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />
               Tournaments
+            </Link>
+            <Link to="/friends" className={`navbar-link ${isActive('/friends')}`}>
+              <Users size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+              Friends
             </Link>
             <Link to="/history" className={`navbar-link ${isActive('/history')}`}>
               <Clock size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />

@@ -8,7 +8,7 @@ import {
   Swords, Copy, Check, Flag, 
   Send, MessageSquare, ScrollText, LogOut, Radio, Clock
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface ChatMessage {
   sender: string;
@@ -53,7 +53,24 @@ export default function PvpMatch() {
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const gameRef = useRef(game);
   const navigate = useNavigate();
+  const location = useLocation();
   gameRef.current = game;
+
+  // Tự động kết nối nếu vào phòng từ lời Thách Đấu bạn bè
+  useEffect(() => {
+    if (location.state && location.state.roomId) {
+      const { roomId, isHost, timeControl, opponentName } = location.state;
+      if (timeControl) {
+        setTimeChoice(timeControl);
+        setWhiteTime(timeControl);
+        setBlackTime(timeControl);
+      }
+      if (opponentName) {
+        setOpponentName(opponentName);
+      }
+      connectToRoom(roomId, isHost);
+    }
+  }, [location.state]);
 
   // === TIMERS ===
   const [whiteTime, setWhiteTime] = useState(300);

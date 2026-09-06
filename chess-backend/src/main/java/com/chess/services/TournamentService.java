@@ -17,6 +17,7 @@ import com.chess.repositories.TournamentMatchRepository;
 import com.chess.repositories.TournamentParticipantRepository;
 import com.chess.repositories.TournamentRepository;
 import com.chess.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +29,13 @@ import java.util.stream.Collectors;
 
 @Service
 public class TournamentService {
+    @Autowired
     private final UserRepository userRepository;
+    @Autowired
     private final TournamentRepository tournamentRepository;
+    @Autowired
     private final TournamentParticipantRepository participantRepository;
+    @Autowired
     private final TournamentMatchRepository matchRepository;
 
     public TournamentService(

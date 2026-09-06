@@ -1,5 +1,6 @@
 package com.chess.repositories;
 
+import com.chess.enums.TournamentStatus;
 import com.chess.models.Game;
 import com.chess.models.User;
 import com.chess.models.Tournament;
@@ -20,4 +21,5 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t FROM Tournament t WHERE t.id = :id")
     Optional<Tournament> findByIdWithLock(@Param("id") Long id);
+    List<Tournament> findByStatus(TournamentStatus status);
 }

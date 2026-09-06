@@ -47,6 +47,10 @@ public class User {
     @Builder.Default
     @Column(name = "elo_rating")
     private Integer eloRating = 1200;
+    
+    @Builder.Default
+    @Column(name = "puzzle_elo_rating")
+    private Integer puzzleEloRating = 1200;
 
     @Builder.Default
     @Column(name = "total_games")
@@ -84,4 +88,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<TournamentParticipant> tournamentParticipants;
+
+    @OneToMany(mappedBy = "user1", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Friendship> sentFriendships;
+
+    @OneToMany(mappedBy = "user2", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Friendship> receivedFriendships;
 }

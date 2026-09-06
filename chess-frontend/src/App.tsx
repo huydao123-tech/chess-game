@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import Navbar from './components/Navbar';
+import ChallengeModal from './components/ChallengeModal';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -8,10 +9,13 @@ import GamePage from './pages/GamePage';
 import HistoryPage from './pages/HistoryPage';
 import ProfilePage from './pages/ProfilePage';
 import ReplayPage from './pages/ReplayPage';
+import FriendsPage from './pages/FriendsPage';
 import './styles/global.css';
 import PvPMatch from './pages/PvPMatch';
 import ReviewMatchPage from './pages/ReviewMatchPage';
 import TournamentPage from './pages/TournamentPage';
+import DashboardPage from './pages/DashboardPage';
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -20,7 +24,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
-  if (isAuthenticated) return <Navigate to="/play" replace />;
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
 
@@ -28,6 +32,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
+      <ChallengeModal />
       <Routes>
         <Route path="/" element={<HomePage />} />
 
@@ -47,12 +52,20 @@ export default function App() {
           <ProtectedRoute><TournamentPage /></ProtectedRoute>
         } />
 
+        <Route path="/friends" element={
+          <ProtectedRoute><FriendsPage /></ProtectedRoute>
+        } />
+
         <Route path="/history" element={
           <ProtectedRoute><HistoryPage /></ProtectedRoute>
         } />
 
         <Route path="/profile" element={
           <ProtectedRoute><ProfilePage /></ProtectedRoute>
+        } />
+
+        <Route path="/dashboard" element={
+          <ProtectedRoute><DashboardPage /></ProtectedRoute>
         } />
 
         <Route path="/replay/:id" element={
